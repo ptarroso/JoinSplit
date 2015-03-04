@@ -40,7 +40,6 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.iface = iface
- 
         self.OutputButton.clicked.connect(self.outFolder)
         self.JoinTableCombo.currentIndexChanged.connect(self.updateFields)
 
@@ -66,6 +65,14 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
     def getGridLayer(self):
         return(unicode(self.GridLayerCombo.currentText()))
 
+    def updateCombos(self, items):
+        if len(items) > 0:
+            self.GridLayerCombo.clear()
+            self.JoinTableCombo.clear()
+            for item in items:
+                self.GridLayerCombo.addItem(item)
+                self.JoinTableCombo.addItem(item)
+
     def updateFields(self):
         joinTable = self.getJoinTable()
         if joinTable != "":
@@ -85,7 +92,8 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         self.prgBar.setValue(0)
         self.prgBar.setMaximum(maxVal)           
         self.widget.layout().addWidget(self.prgBar)
-        self.iface.messageBar().pushWidget(self.widget, self.iface.messageBar().INFO)
+        self.iface.messageBar().pushWidget(self.widget, 
+                                           self.iface.messageBar().INFO)
 
     def showMessage(self, main, txt):
         self.widget.setTitle(main)
@@ -96,4 +104,10 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         if (value == self.prgBar.maximum()):
             self.iface.messageBar().clearWidgets()
             self.iface.mapCanvas().refresh()
+
+    def warnMsg(self, main, text):
+        self.warn = self.iface.messageBar().createMessage(main, text)
+        self.iface.messageBar().pushWidget(self.warn, 
+                                           self.iface.messageBar().WARNING)
+
 

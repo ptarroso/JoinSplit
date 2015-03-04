@@ -132,7 +132,7 @@ class Worker(QObject):
             self.getAttrsGeo()
             spFNames = getListFields(self.sp)
 
-            i = 0
+            i = 1
             for fieldName in spFNames[1:]:
                 fJoinName = "%s_%s" % (self.sp.name(), fieldName)
                 self.getDataField(fJoinName)
@@ -316,10 +316,17 @@ class JoinSplit():
 
     def run(self):
         """Run method that performs all the real work"""
+
+        # Update combos
+        allLayers = self.iface.legendInterface().layers()
+        allLyrNames = [lyr.name() for lyr in allLayers]
+        self.dlg.updateCombos(allLyrNames)
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
+
         # See if OK was pressed
         if result:
             self.dlg.setProgressBar("Processing", "", 100)
@@ -334,26 +341,25 @@ class JoinSplit():
             shownLayers = [x.name() for x in canvas.layers()]
             
             if spLayerName not in shownLayers:
-                #Show a message!!!! TODO TODO TODO
-                pass
+                self.dlg.warnMsg("Species table not found!", spLayerName)
 
-            if grdLayerName not in shownLayers:
-                #Show a message!!!! TODO TODO TODO
-                pass
-    
-            sp = canvas.layer(shownLayers.index(spLayerName))
-            grd = canvas.layer(shownLayers.index(grdLayerName))
+            elif grdLayerName not in shownLayers:
+                self.dlg.warnMsg("Grid layer not found!", grdLayerName)
 
-            thread = self.thread = QThread()
-            worker = self.worker = Worker(sp, grd, jFieldName, outFolder)
-            worker.moveToThread(thread)
-            thread.started.connect(worker.run)
-            worker.progress.connect(self.dlg.ProgressBar)
-            worker.status.connect(self.dlg.showMessage)
-            worker.error.connect(QgsMessageLog.logMessage)
-            worker.lyrInfo.connect(self.loadLayer)
-            worker.finished.connect(worker.deleteLater)
-            thread.finished.connect(thread.deleteLater)
-            worker.finished.connect(thread.quit)
-            thread.start()
+            else:
+                sp = canvas.layer(shownLayers.index(spLayerName))
+                grd = canvas.layer(shownLayers.index(grdLayerName))
+
+                thread = self.thread = QThread()
+                worker = self.worker = Worker(sp, grd, jFieldName, outFolder)
+                worker.moveToThread(thread)
+                thread.started.connect(worker.run)
+                worker.progress.connect(self.dlg.ProgressBar)
+                worker.status.connect(self.dlg.showMessage)
+                worker.error.connect(QgsMessageLog.logMessage)
+                worker.lyrInfo.connect(self.loadLayer)
+                worker.finished.connect(worker.deleteLater)
+                thread.finished.connect(thread.deleteLater)
+                worker.finished.connect(thread.quit)
+                thread.start()
 

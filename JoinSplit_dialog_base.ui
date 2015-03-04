@@ -29,26 +29,6 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QgsMapLayerComboBox" name="GridLayerCombo">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>20</y>
-     <width>160</width>
-     <height>29</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QgsMapLayerComboBox" name="JoinTableCombo">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>60</y>
-     <width>160</width>
-     <height>29</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -121,14 +101,35 @@
     </rect>
    </property>
   </widget>
+  <widget class="QComboBox" name="JoinTableCombo">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>60</y>
+     <width>161</width>
+     <height>29</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="GridLayerCombo">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>20</y>
+     <width>161</width>
+     <height>29</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QgsMapLayerComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
-  </customwidget>
- </customwidgets>
+ <tabstops>
+  <tabstop>GridLayerCombo</tabstop>
+  <tabstop>JoinTableCombo</tabstop>
+  <tabstop>JoinFieldCombo</tabstop>
+  <tabstop>OutputButton</tabstop>
+  <tabstop>OutputLine</tabstop>
+  <tabstop>button_box</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
