@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/JoinSplit" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
