@@ -43,6 +43,8 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         self.OutputButton.clicked.connect(self.outFolder)
         self.JoinTableCombo.currentIndexChanged.connect(self.updateFields)
         self.JoinFieldCombo.currentIndexChanged.connect(self.populateSplits) 
+        self.checkStyle.stateChanged.connect(self.styleState)
+        self.styleButton.clicked.connect(self.styleFile)
 
     def outFolder(self):
         # Show the folder dialog for output
@@ -53,6 +55,17 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         if outFolderName:
             self.OutputLine.clear()
             self.OutputLine.insert(outPath)
+
+    def styleFile(self):
+        # Show the file dialog for choosing a style file
+        self.styleLine.clear()
+        fileDialog = QtGui.QFileDialog()
+        styleFileName = fileDialog.getOpenFileName(self, "Open style file",
+                                                   '', "QML Files (*.qml)")
+        styleFileName = QtCore.QFileInfo(styleFileName).absoluteFilePath()
+        if styleFileName:
+            self.styleLine.clear()
+            self.styleLine.insert(styleFileName)
 
     def getOutFolder(self):
         return(self.OutputLine.text())
@@ -68,6 +81,15 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
 
     def getIncZero(self):
         return(bool(self.includeZero.checkState()))
+
+    def getcheckStyle(self):
+        return(bool(self.checkStyle.checkState()))
+
+    def getStyleFile(self):
+        if self.getcheckStyle():
+            return(self.styleLine.text())
+        else:
+            return(False)
 
     def updateCombos(self, items):
         if len(items) > 0:
@@ -109,6 +131,10 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
             if self.splitFields.isItemSelected(item):
                 splits.append(item.text())
         return(splits)
+
+    def styleState(self, enable):
+        self.styleButton.setEnabled(bool(enable))
+        self.styleLine.setEnabled(bool(enable))
 
     def setProgressBar(self, main, text, maxVal=100):
         self.widget = self.iface.messageBar().createMessage(main, text)

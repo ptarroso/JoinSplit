@@ -37,7 +37,7 @@ def getListFields(lyr):
 
 
 class Worker(QObject):
-    def __init__(self, sp, grd, jFieldName, outFolder, splits, incZero,
+    def __init__(self, sp, grd, jFieldName, outFolder, splits, incZero, 
                  *args, **kwargs):
         QObject.__init__(self, *args, **kwargs)
         self.sp = sp
@@ -48,6 +48,7 @@ class Worker(QObject):
         self.outFolder = outFolder
         self.splits = splits
         self.incZero = incZero
+        
         self.totalcounter = 0
 
     def joinSpData(self):
@@ -206,6 +207,9 @@ class JoinSplit():
         self.toolbar = self.iface.addToolBar(u'JoinSplit')
         self.toolbar.setObjectName(u'JoinSplit')
 
+        # Init a style for display
+        self.styleFile = False
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -316,6 +320,8 @@ class JoinSplit():
 
     def loadLayer(self, shppath, layername):
         vlayer = QgsVectorLayer(shppath, layername, "ogr")
+        if self.styleFile:
+            vlayer.loadNamedStyle(self.styleFile)
         QgsMapLayerRegistry.instance().addMapLayer(vlayer)
 
     def run(self):
@@ -341,6 +347,7 @@ class JoinSplit():
             outFolder = self.dlg.getOutFolder()
             splits = self.dlg.getSplits()
             incZero = self.dlg.getIncZero()
+            self.styleFile = self.dlg.getStyleFile()
 
             canvas = self.iface.mapCanvas()
 
