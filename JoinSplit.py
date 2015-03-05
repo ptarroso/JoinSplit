@@ -37,7 +37,8 @@ def getListFields(lyr):
 
 
 class Worker(QObject):
-    def __init__(self, sp, grd, jFieldName, outFolder, *args, **kwargs):
+    def __init__(self, sp, grd, jFieldName, outFolder, splits, incZero,
+                 *args, **kwargs):
         QObject.__init__(self, *args, **kwargs)
         self.sp = sp
         self.grd = grd
@@ -45,6 +46,8 @@ class Worker(QObject):
         if outFolder[-1] != '/' or outFolder[-1] != '\\':
             outFolder += '/'
         self.outFolder = outFolder
+        self.splits = splits
+        self.incZero = incZero
         self.totalcounter = 0
 
     def joinSpData(self):
@@ -89,7 +92,10 @@ class Worker(QObject):
         # returns data with condition > 0
         geom = self.geom
         attrs = self.attrs
-        myData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] > 0]
+        if self.incZero:
+            myData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] >= 0]
+        else:
+            myData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] > 0]
         self.fieldData = myData
 
     def createLayer(self, fieldName):
@@ -130,10 +136,9 @@ class Worker(QObject):
         try:
             self.joinSpData()
             self.getAttrsGeo()
-            spFNames = getListFields(self.sp)
 
             i = 1
-            for fieldName in spFNames[1:]:
+            for fieldName in self.splits:
                 fJoinName = "%s_%s" % (self.sp.name(), fieldName)
                 self.getDataField(fJoinName)
                 self.createLayer(fieldName)
@@ -310,7 +315,6 @@ class JoinSplit():
             self.iface.removeToolBarIcon(action)
 
     def loadLayer(self, shppath, layername):
-        print(shppath, layername)
         vlayer = QgsVectorLayer(shppath, layername, "ogr")
         QgsMapLayerRegistry.instance().addMapLayer(vlayer)
 
@@ -335,6 +339,8 @@ class JoinSplit():
             grdLayerName = self.dlg.getGridLayer()
             jFieldName = self.dlg.getJoinField()
             outFolder = self.dlg.getOutFolder()
+            splits = self.dlg.getSplits()
+            incZero = self.dlg.getIncZero()
 
             canvas = self.iface.mapCanvas()
 
@@ -351,7 +357,8 @@ class JoinSplit():
                 grd = canvas.layer(shownLayers.index(grdLayerName))
 
                 thread = self.thread = QThread()
-                worker = self.worker = Worker(sp, grd, jFieldName, outFolder)
+                worker = self.worker = Worker(sp, grd, jFieldName, outFolder, 
+                                              splits, incZero)
                 worker.moveToThread(thread)
                 thread.started.connect(worker.run)
                 worker.progress.connect(self.dlg.ProgressBar)

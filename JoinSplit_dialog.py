@@ -42,6 +42,7 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         self.iface = iface
         self.OutputButton.clicked.connect(self.outFolder)
         self.JoinTableCombo.currentIndexChanged.connect(self.updateFields)
+        self.JoinFieldCombo.currentIndexChanged.connect(self.populateSplits) 
 
     def outFolder(self):
         # Show the folder dialog for output
@@ -65,6 +66,9 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
     def getGridLayer(self):
         return(unicode(self.GridLayerCombo.currentText()))
 
+    def getIncZero(self):
+        return(bool(self.includeZero.checkState()))
+
     def updateCombos(self, items):
         if len(items) > 0:
             self.GridLayerCombo.clear()
@@ -84,6 +88,27 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
                 self.JoinFieldCombo.clear()
                 fieldNames = [self.JoinFieldCombo.addItem(f.name()) for f in fields]
 
+    def populateSplits(self):
+        joinTable = self.getJoinTable()
+        if joinTable != "":
+            allLayers = self.iface.legendInterface().layers()
+            allLyrNames = [lyr.name() for lyr in allLayers]
+            if joinTable in allLyrNames:
+                lyr = allLayers[allLyrNames.index(joinTable)]
+                fields = lyr.pendingFields()
+                self.splitFields.clear()
+                for item in [f.name() for f in fields]:
+                    if item != self.getJoinField():
+                        self.splitFields.addItem(item)
+
+    def getSplits(self):
+        splits = []
+        count = self.splitFields.count()
+        for i in range(0, count):
+            item = self.splitFields.item(i)
+            if self.splitFields.isItemSelected(item):
+                splits.append(item.text())
+        return(splits)
 
     def setProgressBar(self, main, text, maxVal=100):
         self.widget = self.iface.messageBar().createMessage(main, text)

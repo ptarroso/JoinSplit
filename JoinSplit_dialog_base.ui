@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>302</width>
-    <height>270</height>
+    <height>521</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>230</y>
+     <y>480</y>
      <width>171</width>
      <height>32</height>
     </rect>
@@ -72,7 +72,7 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>150</y>
+     <y>400</y>
      <width>111</width>
      <height>29</height>
     </rect>
@@ -85,7 +85,7 @@
    <property name="geometry">
     <rect>
      <x>32</x>
-     <y>190</y>
+     <y>440</y>
      <width>231</width>
      <height>33</height>
     </rect>
@@ -121,11 +121,52 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>15</x>
+     <y>140</y>
+     <width>151</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select fields to export:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="includeZero">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>360</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Include zeros?</string>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="splitFields">
+   <property name="geometry">
+    <rect>
+     <x>15</x>
+     <y>160</y>
+     <width>271</width>
+     <height>192</height>
+    </rect>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::ExtendedSelection</enum>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>GridLayerCombo</tabstop>
   <tabstop>JoinTableCombo</tabstop>
   <tabstop>JoinFieldCombo</tabstop>
+  <tabstop>splitFields</tabstop>
+  <tabstop>includeZero</tabstop>
   <tabstop>OutputButton</tabstop>
   <tabstop>OutputLine</tabstop>
   <tabstop>button_box</tabstop>
