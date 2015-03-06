@@ -161,4 +161,9 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         self.iface.messageBar().pushWidget(self.warn, 
                                            self.iface.messageBar().WARNING)
 
+    def errorMsg(self, main, text):
+        self.warn = self.iface.messageBar().createMessage(main, text)
+        self.iface.messageBar().pushWidget(self.warn, 
+                                           self.iface.messageBar().CRITICAL)
+
 

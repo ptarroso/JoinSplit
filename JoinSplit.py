@@ -339,8 +339,6 @@ class JoinSplit():
 
         # See if OK was pressed
         if result:
-            self.dlg.setProgressBar("Processing", "", 100)
-
             spLayerName = self.dlg.getJoinTable()
             grdLayerName = self.dlg.getGridLayer()
             jFieldName = self.dlg.getJoinField()
@@ -352,16 +350,27 @@ class JoinSplit():
             canvas = self.iface.mapCanvas()
 
             shownLayers = [x.name() for x in canvas.layers()]
+
+            sp = canvas.layer(shownLayers.index(spLayerName))
+            grd = canvas.layer(shownLayers.index(grdLayerName))
             
             if spLayerName not in shownLayers:
                 self.dlg.warnMsg("Species table not found!", spLayerName)
 
             elif grdLayerName not in shownLayers:
-                self.dlg.warnMsg("Grid layer not found!", grdLayerName)
+                self.dlg.errorMsg("Grid layer not found!", grdLayerName)
+
+            elif outFolder == "":
+                self.dlg.errorMsg("Output folder is mandatory!", "")
+
+            elif splits == []:
+                self.dlg.errorMsg("At least one column should be selected.", "")
+
+            elif not grd.hasGeometryType():
+                self.dlg.errorMsg("Spatial layer must have geometry.", "")
 
             else:
-                sp = canvas.layer(shownLayers.index(spLayerName))
-                grd = canvas.layer(shownLayers.index(grdLayerName))
+                self.dlg.setProgressBar("Processing", "", 100)
 
                 thread = self.thread = QThread()
                 worker = self.worker = Worker(sp, grd, jFieldName, outFolder, 
