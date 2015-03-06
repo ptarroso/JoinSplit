@@ -1,9 +1,9 @@
 # JoinSplit
 
-JoinSPlit is a plug-in for QGIS (version >= 2.0). It joins a spatial layer with
-a table with no geometry and exports all fields from the table as independent
-shapefiles. Spatial layer and table must share a common field with the same
-name. 
+JoinSplit is a plug-in for QGIS (version >= 2.0; http://www.qgis.org). It joins 
+a spatial layer with a table with no geometry and exports all fields from the 
+table as independent shapefiles. Spatial layer and table must share a common 
+field with the same name. 
 
 The original purpose of this plug-in was to generate individual species 
 shapefiles using a single polygon grid for the area and a cross table with 
@@ -13,17 +13,19 @@ itself).
 
 Currently, JoinSplit only support numeric fields.
 
-The GUI for JoinSplit allows to:
- 
-    - choose a spatial layer from the table of contents
-    - choose a table to join from the table of contents
-    - choose a common field between the layers
-    - select the fields to export (from the join table)
-    - include zeros (useful for limitng exported shapefiles only to presences)
-    - select an optional style file (.qml) to display all created shapefiles
-    - choose and output folder to export the shapefiles
+## Features
 
-* Installation *
+The JoinSplit plug-in allows to:
+ 
+* choose a spatial layer from the table of contents
+* choose a table to join from the table of contents
+* choose a common field between the layers
+* select the fields to export (from the join table)
+* include zeros (useful for limitng exported shapefiles only to presences)
+* select an optional style file (.qml) to display all created shapefiles
+* choose and output folder to export the shapefiles
+
+## Installation
 
 Download the files to your computer in a folder JoinSplit. Copy this folder to
 the plug-in folder of your QGIS instalation. Usually is found in the 
