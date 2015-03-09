@@ -204,7 +204,10 @@ class JoinSplit():
         self.actions = []
         self.menu = self.tr(u'&JoinSplit')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'JoinSplit')
+        if self.iface.pluginToolBar():
+            self.toolbar = self.iface.pluginToolBar()
+        else:
+            self.toolbar = self.iface.addToolBar(u'JoinSplit')
         self.toolbar.setObjectName(u'JoinSplit')
 
         # Init a style for display
