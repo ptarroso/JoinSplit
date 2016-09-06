@@ -54,9 +54,9 @@ class Worker(QObject):
         # join sp and grd tables based on a common field
         self.status.emit("Joining tables", "")
         joinInfo = QgsVectorJoinInfo()
-        joinInfo.joinFieldName = self.jFieldName
         joinInfo.joinLayerId = self.sp.id()
-        joinInfo.targetField = self.jFieldName
+        joinInfo.joinFieldName = self.jFieldName
+        joinInfo.targetFieldName = self.jFieldName
         joinInfo.memoryCache = False
         self.grd.addJoin(joinInfo)
         self.grd.updateFields()

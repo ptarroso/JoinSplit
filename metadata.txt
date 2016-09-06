@@ -1,24 +1,17 @@
 [general]
 name=JoinSplit
 qgisMinimumVersion=2.0
-description=JoinSplit
+description=JoinSplit relates a spatial layer with a matrix sharing a common field, and export the selected fields from the matrix as spatial layers.
+about=The JoinSplit works by performing a table join between a spatial layer and a matrix (opened as a table in QGIS), and it exports each field from the matrix, or only those selected by the user, as an individual shapefile. This plugin is useful when a matrix of presence or counts of multiple entities (e.g. species observations) are available with an grid identifier (e.g. UTM square, custom grid ID, intersection of lat/lon with a grid, etc). The JoinSplit opens all layers in the Table of Contents and the user may choose a style file (exported from any other shapefile) to show the new layers. The plugin includes an example data set.
 version=0.1
 author=Pedro Tarroso
 email=ptarroso@cibio.up.pt
-
-# Uncomment the following line and add your changelog:
 # changelog=
-
-# Tags are comma separated with spaces allowed
-tags=attribute table, database, csv, export, field, join, layers, vector
-
-homepage=https://github.com/ptarroso/JoinSplit
-tracker=https://github.com/ptarroso/JoinSplit/issues
-repository=https://github.com/ptarroso/JoinSplit
-category=Plugins
-icon=icon.png
 experimental=False
-
-# deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-
+tags=attribute table, database, csv, export, field, join, layers, vector
+homepage=https://github.com/ptarroso/JoinSplit
+repository=https://github.com/ptarroso/JoinSplit
+tracker=https://github.com/ptarroso/JoinSplit/issues
+icon=icon.png
+category=Plugins
