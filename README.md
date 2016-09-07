@@ -27,8 +27,16 @@ The JoinSplit plug-in allows to:
 
 ## Installation
 
+### QGIS plugin manager
+
+The JoinSplit is in the QGIS plugin repository. Using the plugin manager inside QGIS, search JoinSplit and install.
+
+### Manual install
+
 Download the files to your computer in a folder JoinSplit. Copy this folder to
 the plug-in folder of your QGIS instalation. Usually is found in the 
-PATH_TO_YOUR_USER/.qgis2/python/plugins/ (check http://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/plugins.html for more details). 
+*PATH_TO_YOUR_USER/.qgis2/python/plugins/* ([check the QGIS manuals](http://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/plugins.html) for more details). 
 In QGIS, activate the JoinSplit from the plug-in manager.
 
+## Example
+The JoinSplit includes an example dataset located in the QGIS plugins folder (usually some form of *PATH_TO_YOUR_USER/.qgis2/python/plugins/JoinSplit* [see QGIS manuals](http://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/plugins.html)). The example has one shapefile, **grid.shp**, and one text file, **speciesMatrix.csv** with a matrix of presence per grid cell. Open the shapefile the usual way in QGIS and the Species Matrix with the [Add Delimited Text Layer Button](http://docs.qgis.org/2.14/en/docs/user_manual/working_with_vector/supported_data.html?highlight=delimited%20text#delimited-text-files). Open the JoinSplit plugin, either with the icon at the panel or menu Plugins -> JoinSplit, and choose the grid layer as the *Spatial layer*, the species matrix as *Join Table*, and *GRIDID* as *Join Field*. Select the 5 species in the *Fields to Export*, and output folder and press OK button. 
