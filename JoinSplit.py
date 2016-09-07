@@ -23,7 +23,7 @@ from PyQt4.QtCore import *
 from qgis.core import *
 from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
-import resources_rc
+import resources
 # Import the code for the dialog
 from JoinSplit_dialog import JoinSplitDialog
 import os.path
