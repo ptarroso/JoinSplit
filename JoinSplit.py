@@ -47,8 +47,9 @@ class Worker(QObject):
         self.outFolder = outFolder
         self.splits = splits
         self.incZero = incZero
-        
-        self.totalcounter = 0
+        self.crs = grd.crs().authid()
+        self.geomType = grd.geometryType()
+
 
     def joinSpData(self):
         # join sp and grd tables based on a common field
@@ -76,7 +77,7 @@ class Worker(QObject):
         i = 1
         for feature in iter:
             self.updateProgress(i)
-            geom.append(feature.geometry().asPolygon())
+            geom.append(feature.geometry().asWkb())
             attributes.append(feature.attributes())
             i += 1
         attrs = [list(x) for x in zip(*attributes)]
@@ -100,7 +101,8 @@ class Worker(QObject):
 
     def createLayer(self, fieldName):
         # create layer
-        vl = QgsVectorLayer("Polygon", fieldName, "memory")
+        vl = QgsVectorLayer("%s?crs=%s" % (QGis.vectorGeometryType(self.geomType), self.crs), 
+                            fieldName, "memory")
         pr = vl.dataProvider()
         
         # Enter editing mode
@@ -113,7 +115,9 @@ class Worker(QObject):
         def addFet(feature):
             # add a feature to pr
             fet = QgsFeature()
-            fet.setGeometry(QgsGeometry.fromPolygon(feature[0]))
+            geo = QgsGeometry()
+            QgsGeometry.fromWkb(geo, feature[0])
+            fet.setGeometry(geo)
             fet.setAttributes([feature[1], feature[2]])
             pr.addFeatures([fet])
         
