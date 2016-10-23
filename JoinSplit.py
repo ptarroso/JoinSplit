@@ -90,13 +90,14 @@ class Worker(QObject):
         allfields = getListFields(self.grd)
         gridFID = allfields.index(self.jFieldName)
         fID = allfields.index(fName)
-        # returns data with condition > 0
         geom = self.geom
         attrs = self.attrs
+
         if self.incZero:
-            myData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] >= 0]
+            myData = [x for x in zip(geom, attrs[gridFID], attrs[fID])]
         else:
-            myData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] > 0]
+            onlyData = [x for x in zip(geom, attrs[gridFID], attrs[fID]) if x[2] != None]
+            myData = [x for x in onlyData if int(x[2]) != 0]
         self.fieldData = myData
 
     def createLayer(self, fieldName):
