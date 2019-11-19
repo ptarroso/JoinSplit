@@ -20,15 +20,19 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import range
 import os
 
-from PyQt4 import QtGui, uic, QtCore
+from PyQt5 import QtWidgets
+from qgis.PyQt import QtGui, uic, QtCore
+from qgis.core import QgsProject, Qgis
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'JoinSplit_dialog_base.ui'))
 
 
-class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
+class JoinSplitDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, iface, parent=None):
         """Constructor."""
         super(JoinSplitDialog, self).__init__(parent)
@@ -48,8 +52,8 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
     def outFolder(self):
         # Show the folder dialog for output
         self.OutputLine.clear()
-        fileDialog = QtGui.QFileDialog()
-        outFolderName = fileDialog.getExistingDirectory(self, "Open a folder", ".", QtGui.QFileDialog.ShowDirsOnly)
+        fileDialog = QtWidgets.QFileDialog()
+        outFolderName = fileDialog.getExistingDirectory(self, "Open a folder", ".", QtWidgets.QFileDialog.ShowDirsOnly)
         outPath = QtCore.QFileInfo(outFolderName).absoluteFilePath()
         if outFolderName:
             self.OutputLine.clear()
@@ -58,9 +62,9 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
     def styleFile(self):
         # Show the file dialog for choosing a style file
         self.styleLine.clear()
-        fileDialog = QtGui.QFileDialog()
+        fileDialog = QtWidgets.QFileDialog()
         styleFileName = fileDialog.getOpenFileName(self, "Open style file",
-                                                   '', "QML Files (*.qml)")
+                                                   '', "QML Files (*.qml)")[0]
         styleFileName = QtCore.QFileInfo(styleFileName).absoluteFilePath()
         if styleFileName:
             self.styleLine.clear()
@@ -70,13 +74,13 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         return(self.OutputLine.text())
 
     def getJoinTable(self):
-        return(unicode(self.JoinTableCombo.currentText()))
+        return(str(self.JoinTableCombo.currentText()))
 
     def getJoinField(self):
-        return(unicode(self.JoinFieldCombo.currentText()))
+        return(str(self.JoinFieldCombo.currentText()))
 
     def getGridLayer(self):
-        return(unicode(self.GridLayerCombo.currentText()))
+        return(str(self.GridLayerCombo.currentText()))
 
     def getIncZero(self):
         return(bool(self.includeZero.checkState()))
@@ -101,22 +105,22 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
     def updateFields(self):
         joinTable = self.getJoinTable()
         if joinTable != "":
-            allLayers = self.iface.legendInterface().layers()
+            allLayers = [layer for layer in QgsProject.instance().mapLayers().values()]
             allLyrNames = [lyr.name() for lyr in allLayers]
             if joinTable in allLyrNames:
                 lyr = allLayers[allLyrNames.index(joinTable)]
-                fields = lyr.pendingFields()
+                fields = lyr.fields()
                 self.JoinFieldCombo.clear()
                 fieldNames = [self.JoinFieldCombo.addItem(f.name()) for f in fields]
 
     def populateSplits(self):
         joinTable = self.getJoinTable()
         if joinTable != "":
-            allLayers = self.iface.legendInterface().layers()
+            allLayers = [layer for layer in QgsProject.instance().mapLayers().values()]
             allLyrNames = [lyr.name() for lyr in allLayers]
             if joinTable in allLyrNames:
                 lyr = allLayers[allLyrNames.index(joinTable)]
-                fields = lyr.pendingFields()
+                fields = lyr.fields()
                 self.splitFields.clear()
                 for item in [f.name() for f in fields]:
                     if item != self.getJoinField():
@@ -127,7 +131,7 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
         count = self.splitFields.count()
         for i in range(0, count):
             item = self.splitFields.item(i)
-            if self.splitFields.isItemSelected(item):
+            if item.isSelected():
                 splits.append(item.text())
         return(splits)
 
@@ -137,14 +141,13 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
 
     def setProgressBar(self, main, text, maxVal=100):
         self.widget = self.iface.messageBar().createMessage(main, text)
-        self.prgBar = QtGui.QProgressBar()
+        self.prgBar = QtWidgets.QProgressBar()
         self.prgBar.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.prgBar.setValue(0)
-        self.prgBar.setMaximum(maxVal)           
+        self.prgBar.setMaximum(maxVal)
         self.widget.layout().addWidget(self.prgBar)
-        self.iface.messageBar().pushWidget(self.widget, 
-                                           self.iface.messageBar().INFO)
-
+        self.iface.messageBar().pushWidget(self.widget, Qgis.Info)
+        
     def showMessage(self, main, txt):
         self.widget.setTitle(main)
         self.widget.setText(txt)
@@ -155,14 +158,18 @@ class JoinSplitDialog(QtGui.QDialog, FORM_CLASS):
             self.iface.messageBar().clearWidgets()
             self.iface.mapCanvas().refresh()
 
+    def emitMsg(self, main, text, type):
+        # Emits a message to QGIS.
+        # type is either Qgis.Warning or Qgis.Critical
+        # TODO: Replace the warnMsg and the errorMsg to this function!!!
+        msg = self.iface.messageBar().createMessage(main, text)
+        self.iface.messageBar().pushWidget(msg, type)
+    
+
     def warnMsg(self, main, text):
         self.warn = self.iface.messageBar().createMessage(main, text)
-        self.iface.messageBar().pushWidget(self.warn, 
-                                           self.iface.messageBar().WARNING)
+        self.iface.messageBar().pushWidget(self.warn)
 
     def errorMsg(self, main, text):
         self.warn = self.iface.messageBar().createMessage(main, text)
-        self.iface.messageBar().pushWidget(self.warn, 
-                                           self.iface.messageBar().CRITICAL)
-
-
+        self.iface.messageBar().pushWidget(self.warn)

@@ -1,6 +1,6 @@
 # JoinSplit
 
-JoinSplit is a plug-in for QGIS (version >= 2.0; http://www.qgis.org). It joins 
+JoinSplit is a plug-in for QGIS (version >= 3.0; http://www.qgis.org). It joins 
 a spatial layer with a table with no geometry and exports all fields from the 
 table as independent shapefiles. Spatial layer and table must share a common 
 field with the same name. 

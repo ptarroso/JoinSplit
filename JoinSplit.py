@@ -19,18 +19,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from qgis.core import *
-from PyQt4.QtGui import QAction, QIcon
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import zip
+from builtins import object
+from PyQt5.QtCore import QObject, pyqtSignal, QSettings, QCoreApplication
+from PyQt5.QtCore import QThread, QVariant
+from qgis.core import QgsProject, QgsMessageLog, QgsVectorLayerJoinInfo
+from qgis.core import QgsVectorLayer, QgsWkbTypes, QgsField, QgsFeature
+from qgis.core import QgsGeometry, QgsVectorFileWriter
+
+from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 # Import the code for the dialog
-from JoinSplit_dialog import JoinSplitDialog
+from .JoinSplit_dialog import JoinSplitDialog
 import os.path
 
 def getListFields(lyr):
     # Returns a list of fields for a layer
-    Fields = lyr.pendingFields()
+    Fields = lyr.fields()
     FNames = [field.name() for field in Fields]
     return(FNames)
 
@@ -48,17 +59,18 @@ class Worker(QObject):
         self.splits = splits
         self.incZero = incZero
         self.crs = grd.crs().authid()
-        self.geomType = grd.geometryType()
+        self.geomType = grd.wkbType()
 
 
     def joinSpData(self):
         # join sp and grd tables based on a common field
         self.status.emit("Joining tables", "")
-        joinInfo = QgsVectorJoinInfo()
-        joinInfo.joinLayerId = self.sp.id()
-        joinInfo.joinFieldName = self.jFieldName
-        joinInfo.targetFieldName = self.jFieldName
-        joinInfo.memoryCache = False
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinFieldName(self.jFieldName)
+        joinInfo.setTargetFieldName(self.jFieldName)
+        joinInfo.setJoinLayerId(self.sp.id())
+        joinInfo.setUsingMemoryCache(False)
+        joinInfo.setJoinLayer(self.sp)
         self.grd.addJoin(joinInfo)
         self.grd.updateFields()
 
@@ -102,8 +114,8 @@ class Worker(QObject):
 
     def createLayer(self, fieldName):
         # create layer
-        vl = QgsVectorLayer("%s?crs=%s" % (QGis.vectorGeometryType(self.geomType), self.crs), 
-                            fieldName, "memory")
+        lname = "%s?crs=%s" % (QgsWkbTypes.displayString(self.geomType), self.crs)
+        vl = QgsVectorLayer(lname, fieldName, "memory")
         pr = vl.dataProvider()
         
         # Enter editing mode
@@ -122,7 +134,7 @@ class Worker(QObject):
             fet.setAttributes([feature[1], feature[2]])
             pr.addFeatures([fet])
         
-        res = map(addFet, self.fieldData)
+        res = list(map(addFet, self.fieldData))
         
         # Commit changes
         vl.commitChanges()
@@ -131,7 +143,7 @@ class Worker(QObject):
 
     def saveSHP(self, shpPath, load=True):
         writeVector = QgsVectorFileWriter.writeAsVectorFormat
-        error = writeVector(self.vl, shpPath, "UTF-8", None, "ESRI Shapefile")
+        error = writeVector(self.vl, shpPath, "UTF-8", driverName="ESRI Shapefile")
 
     def updateProgress(self, i):
         progress = int(i / float(self.totalcounter) * 100)
@@ -171,7 +183,7 @@ class Worker(QObject):
     lyrInfo = pyqtSignal(str, str)
 
 
-class JoinSplit():
+class JoinSplit(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -329,14 +341,16 @@ class JoinSplit():
         vlayer = QgsVectorLayer(shppath, layername, "ogr")
         if self.styleFile:
             vlayer.loadNamedStyle(self.styleFile)
-        QgsMapLayerRegistry.instance().addMapLayer(vlayer)
+        QgsProject.instance().addMapLayer(vlayer)
 
     def run(self):
         """Run method that performs all the real work"""
 
-        # Update combos
-        allLayers = self.iface.legendInterface().layers()
+        layerTree = QgsProject.instance().layerTreeRoot().findLayers()
+        allLayers = [lyr.layer() for lyr in layerTree]
         allLyrNames = [lyr.name() for lyr in allLayers]
+
+        # Update combos
         self.dlg.updateCombos(allLyrNames)
 
         # show the dialog
@@ -354,26 +368,17 @@ class JoinSplit():
             incZero = self.dlg.getIncZero()
             self.styleFile = self.dlg.getStyleFile()
 
-            canvas = self.iface.mapCanvas()
-
-            shownLayers = [x.name() for x in canvas.layers()]
-
-            sp = canvas.layer(shownLayers.index(spLayerName))
-            grd = canvas.layer(shownLayers.index(grdLayerName))
+            # Get correct layers from Graphical Interface
+            sp = allLayers[allLyrNames.index(spLayerName)]
+            grd = allLayers[allLyrNames.index(grdLayerName)]
             
-            if spLayerName not in shownLayers:
-                self.dlg.warnMsg("Species table not found!", spLayerName)
-
-            elif grdLayerName not in shownLayers:
-                self.dlg.errorMsg("Grid layer not found!", grdLayerName)
-
-            elif outFolder == "":
+            if outFolder == "":
                 self.dlg.errorMsg("Output folder is mandatory!", "")
 
             elif splits == []:
                 self.dlg.errorMsg("At least one column should be selected.", "")
 
-            elif not grd.hasGeometryType():
+            elif not grd.geometryType() < 4:
                 self.dlg.errorMsg("Spatial layer must have geometry.", "")
 
             else:
@@ -392,4 +397,3 @@ class JoinSplit():
                 thread.finished.connect(thread.deleteLater)
                 worker.finished.connect(thread.quit)
                 thread.start()
-
